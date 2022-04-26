@@ -6,3 +6,4 @@ int date_compare(struct Date *dt_1_p, struct Date *dt_2_p);
 int get_user_selection_1_9(const char *description, int options_n);
 void finish_line(FILE *fp);
 char *str_replace_in_place(char *str_in, char *old, char *new);
+void *try_malloc(size_t size);

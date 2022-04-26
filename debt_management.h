@@ -8,4 +8,4 @@
 
 FILE *try_to_open_the_file();
 int is_empty_file(FILE *fp);
-size_t load_from_file(FILE *fp, struct Person **head_p_p);
+int load_from_file(FILE *fp, struct Person **head_p_p);

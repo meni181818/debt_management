@@ -64,9 +64,10 @@ int get_user_selection_1_9(const char *description, int options_n)
     int inpt;
     do
     {
-        if (!is_first)
+        if (is_first)
+            is_first = 0;
+        else // only after the first try
             fputs("incorrect selection.\n", stdout);
-        is_first = 0;
 
         fputs(description, stdout);
         inpt = fgetc(stdin);
@@ -103,4 +104,17 @@ char *str_replace_in_place(char *str_in, char *old, char *new)
     return str_in;
 }
 
+// return not-NULL if success, NULL if faild and user want to exit.
+void *try_malloc(size_t size)
+{
+    void *ret;
+    int user_selection;
 
+    while ((ret = malloc(size)) == NULL)
+    {
+        user_selection = get_user_selection_1_9("memory allocation faild. please select:\n1. try again.\n2. exit.", 2);
+        if (user_selection == 2)
+            break;
+    }
+    return ret;
+}

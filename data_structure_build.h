@@ -2,7 +2,7 @@
 #include "general_functions.h"
 #include "validation.h"
 
-struct Person *create_person_from_line(char *line, size_t line_number);
+int create_person_from_line(char *line, size_t line_number, struct Person **new_person_p_p);
 
 enum validation_result validate_line_cols(const char *line, size_t line_n);
 enum validation_result validate_not_null_column(char *col_str, size_t line_number, size_t col_number);

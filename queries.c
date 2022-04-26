@@ -2,6 +2,7 @@
 
 int prompt(struct Person **head_p_p, FILE *fp)
 {
+    int route_cmd_res;
     char cmd_buf[INPUT_LINE_BUF_SIZE];
     size_t cmd_len;
 
@@ -29,9 +30,12 @@ int prompt(struct Person **head_p_p, FILE *fp)
         str_replace_in_place(cmd_buf, "first name", "first_name");
         str_replace_in_place(cmd_buf, "last name", "last_name");
 
-        // 'quit'
-        if (route_cmd(cmd_buf, cmd_len, head_p_p, fp) == EXIT_SIGNAL)
+        route_cmd_res = route_cmd(cmd_buf, cmd_len, head_p_p, fp);
+        if (route_cmd_res == 'q') // 'quit'
             break;
+        if (route_cmd_res == EXIT_SIGNAL) // malloc faild and the user want to exit
+            return EXIT_SIGNAL;
+
     }
     return RESULT_SUCCESS;
 }
@@ -48,27 +52,32 @@ int route_cmd(char *cmd_str, size_t cmd_len, struct Person **head_p_p, FILE *fp)
     if (strcmp(tok, "set") == 0)
         return make_set(tok, head_p_p, fp);
 
-    if (strcmp(tok, "print") == 0)
+    if (strcmp(tok, "print") == 0 && strtok(NULL, " ") == NULL) // && no another word(s)
     {
         print_persons_records(*head_p_p);
         return RESULT_SUCCESS;
     }
 
-    if (strcmp(tok, "quit") == 0)
-        return EXIT_SIGNAL;
+    if (strcmp(tok, "quit") == 0 && strtok(NULL, " ") == NULL) // && no another word(s)
+        return 'q';
 
-    if (strcmp(tok, "help") == 0)
+    if (strcmp(tok, "help") == 0 && strtok(NULL, " ") == NULL) // && no another word(s)
     {
         PRINT_QUIERIES_HELP;
         return RESULT_SUCCESS;
     }
 
     // non of the above => unknown command
-    PRINT_INVALID_CMD("unknown command");
+    PRINT_INVALID_CMD("unknown command/invalid syntax");
 
     return RESULT_ERROR;
 }
-// set first name=eti, last name=grossman, id=206165532, phone=0504137649, debt=10, date=26/4/2022
+/*
+ * make set command.
+ * parse the command and insert the new records to the data structure,
+ * and write it to the file.
+ * return: RESULT_SUCCESS or RESULT_ERROR or EXIT_SIGNAL
+ */
 int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
 {
     char *fields_p_arr[PERSON_FIELDS_N] = {0}; // zero the arr
@@ -81,8 +90,8 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
     // we now at the first token ("set"). loop 6 times for all person fields.
     for (size_t i = 0; i < PERSON_FIELDS_N; i++)
     {
-        cmd_tok = strtok(NULL, " ,"); // potential problem <<<<<<<<<<<<<<<<<<<<<<<<
-        if (cmd_tok == NULL)          // missing token
+        cmd_tok = strtok(NULL, " ,");
+        if (cmd_tok == NULL) // missing token
         {
             PRINT_INVALID_CMD("missing field");
             return RESULT_ERROR;
@@ -124,7 +133,9 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
     // copy it before validation (validation using strtok and mutate it)
     strncpy(final_line_for_file, final_line_for_validation, INPUT_LINE_BUF_SIZE);
 
-    new_person = create_person_from_line(final_line_for_validation, 0);
+    if (create_person_from_line(final_line_for_validation, 0, &new_person) == EXIT_SIGNAL)
+        return EXIT_SIGNAL; // malloc faild and the user want to exit
+
     // invalid field\s
     if (new_person == NULL)
         return RESULT_ERROR;
@@ -143,7 +154,7 @@ int make_select(char *cmd_tok, struct Person *head_p)
     enum operators op;
     // pointer to the value to compare
     void *value_p;
-    // arrayy of pointers to comparison functions
+    // array of pointers to comparison functions
     int (*comparison_funcs_arr[PERSON_FIELDS_N])(struct Person * person_p, enum operators op, void *value) = {
         &check_first_name_condition, &check_last_name_condition,
         &check_id_condition, &check_phone_condition,

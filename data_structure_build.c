@@ -2,11 +2,14 @@
 
 // on success: pointer to a new Person object.
 // on failure: NULL
-struct Person *create_person_from_line(char *line, size_t line_number) // TODO: seperate to several functions <<
+int create_person_from_line(char *line, size_t line_number, struct Person **new_person_p_p) // TODO: seperate to several functions <<
 {
     size_t cols_count = 1;
-    struct Person *new_person_p = (struct Person *)malloc(sizeof(struct Person));
-    // TODO: if malloc faild
+    int ret_val = RESULT_ERROR;
+    *new_person_p_p = (struct Person *)try_malloc(sizeof(struct Person));
+    if (*new_person_p_p == NULL) // malloc faild and the user want to exit
+        return EXIT_SIGNAL;
+    
     char *tok = strtok(line, FILE_DELIM_STR);
 
     do
@@ -16,56 +19,66 @@ struct Person *create_person_from_line(char *line, size_t line_number) // TODO: 
         // first name
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "first", line_number) != VALID)
             break;
-        new_person_p->first_name = (char *)malloc((strlen(tok) + 1) * sizeof(char));
-        strcpy(new_person_p->first_name, tok);
+        (*new_person_p_p)->first_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
+        if ((*new_person_p_p)->first_name == NULL) // malloc faild and the user want to exit
+        {
+            ret_val = EXIT_SIGNAL;
+            break;
+        }
+        strcpy((*new_person_p_p)->first_name, tok);
         cols_count++;
 
         // last name
         tok = strtok(NULL, FILE_DELIM_STR);
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "last", line_number) != VALID)
             break;
-        new_person_p->last_name = (char *)malloc((strlen(tok) + 1) * sizeof(char));
-        strcpy(new_person_p->last_name, tok);
+        (*new_person_p_p)->last_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
+        if ((*new_person_p_p)->last_name == NULL) // malloc faild and the user want to exit
+        {
+            ret_val = EXIT_SIGNAL;
+            break;
+        }
+        strcpy((*new_person_p_p)->last_name, tok);
         cols_count++;
 
         // id
         tok = strtok(NULL, FILE_DELIM_STR);
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_id(tok, line_number) != VALID)
             break;
-        strncpy(new_person_p->id, tok, ID_VALID_LEN + 1); // + 1 for '\0'
+        strncpy((*new_person_p_p)->id, tok, ID_VALID_LEN + 1); // + 1 for '\0'
         cols_count++;
 
         // phone
         tok = strtok(NULL, FILE_DELIM_STR);
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_phone(tok, line_number) != VALID)
             break;
-        strncpy(new_person_p->phone, tok, PHONE_VALID_LEN + 1); // + 1 for '\0'
+        strncpy((*new_person_p_p)->phone, tok, PHONE_VALID_LEN + 1); // + 1 for '\0'
         cols_count++;
 
         // amount
         tok = strtok(NULL, FILE_DELIM_STR);
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_amount(tok, line_number) != VALID)
             break;
-        new_person_p->current_debt = atof(tok);
+        (*new_person_p_p)->current_debt = atof(tok);
         cols_count++;
 
         // date
         tok = strtok(NULL, FILE_DELIM_STR);
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_date(tok, line_number) != VALID)
             break;
-        new_person_p->first_trans_date = str_to_date(tok);
+        (*new_person_p_p)->first_trans_date = str_to_date(tok);
         // validate we got 3 tokens
-        if (validate_date_parsing(&new_person_p->first_trans_date) != VALID)
+        if (validate_date_parsing(&(*new_person_p_p)->first_trans_date) != VALID)
             break;
 
-        new_person_p->next_p = NULL;
+        (*new_person_p_p)->next_p = NULL;
 
-        return new_person_p;
+        return RESULT_SUCCESS;
     } while (0);
 
     // in case of failure, we breaking out of the do-while
-    free_person(new_person_p);
-    return NULL;
+    free_person((*new_person_p_p));
+    return ret_val;
 }
 
 enum validation_result validate_not_null_column(char *col_str, size_t line_number, size_t col_number)
