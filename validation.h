@@ -1,5 +1,5 @@
 #include "general_defs.h"
-#include <ctype.h>
+
 
 enum validation_result _name_validation(const char *name);
 enum validation_result _id_validation(const char *id_str);

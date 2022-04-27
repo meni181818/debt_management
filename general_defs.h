@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifndef DEBT_MANAGMENT_GENERAL_DEFS
 #define DEBT_MANAGMENT_GENERAL_DEFS

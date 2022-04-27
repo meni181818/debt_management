@@ -41,12 +41,6 @@ void print_persons_records(struct Person *head_p)
     fputc('\n', stdout);
 }
 
-/*
- * return like strcmp.
- * 0 if equals,
- * positive value if dt_1_p > dt_2_p,
- * negative value if dt_1_p < dt_2_p
- */
 int date_compare(struct Date *dt_1_p, struct Date *dt_2_p)
 {
     if (dt_1_p->year != dt_2_p->year)
@@ -86,10 +80,6 @@ void finish_line(FILE *fp)
         ;
 }
 
-/*
- * replace the old sub-str in str_in with new sub-str.
- * both have to be in same length.
- */
 char *str_replace_in_place(char *str_in, char *old, char *new)
 {
     size_t rep_len = strlen(old);
@@ -104,7 +94,6 @@ char *str_replace_in_place(char *str_in, char *old, char *new)
     return str_in;
 }
 
-// return not-NULL if success, NULL if faild and user want to exit.
 void *try_malloc(size_t size)
 {
     void *ret;
@@ -117,4 +106,17 @@ void *try_malloc(size_t size)
             break;
     }
     return ret;
+}
+
+char *str_strip_in_place(char *str)
+{
+    size_t len;
+
+    while (*str && isspace(*str))
+        str++;
+    
+    for (len = strlen(str); len > 1 && isspace(str[len - 1]); str[--len] = '\0')
+        ;
+
+    return str;
 }
