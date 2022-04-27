@@ -9,7 +9,7 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
     *new_person_p_p = (struct Person *)try_malloc(sizeof(struct Person));
     if (*new_person_p_p == NULL) // malloc faild and the user want to exit
         return EXIT_SIGNAL;
-    
+
     char *tok = strtok(line, FILE_DELIM_STR);
 
     do
@@ -187,7 +187,7 @@ struct Person *insert_or_update_person(struct Person **head_p_p, struct Person *
         // same id, but same names?
         if (is_same_person_names(old_person_p, new_person_p))
         {
-            update_person_debt_and_date(old_person_p, new_person_p);
+            update_person_debt_date_phone(old_person_p, new_person_p);
             ret = old_person_p;
         }
         else // conflicting names for the same id
@@ -272,12 +272,14 @@ int is_same_person_names(struct Person *person_1_p, struct Person *person_2_p)
     return (strcmp(person_1_p->first_name, person_2_p->first_name) == 0 && strcmp(person_1_p->last_name, person_2_p->last_name) == 0);
 }
 
-void update_person_debt_and_date(struct Person *old_person_p, struct Person *new_person_p)
+void update_person_debt_date_phone(struct Person *old_person_p, struct Person *new_person_p)
 {
     old_person_p->current_debt += new_person_p->current_debt;
     // if the new_person have older date => update the date.
     if (date_compare(&old_person_p->first_trans_date, &new_person_p->first_trans_date) > 0)
         old_person_p->first_trans_date = new_person_p->first_trans_date;
+    else // the new person Date >= old person date, update the phone
+        strncpy(old_person_p->phone, new_person_p->phone, PHONE_VALID_LEN);
 }
 
 // remove from the list, NO FREE!

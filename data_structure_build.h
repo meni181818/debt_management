@@ -15,7 +15,7 @@ enum validation_result validate_date_parsing(struct Date *date);
 
 
 struct Person *insert_or_update_person(struct Person **head_p_p, struct Person *new_person_p, size_t line_number);
-void update_person_debt_and_date(struct Person *old_person_p, struct Person *new_person_p);
+void update_person_debt_date_phone(struct Person *old_person_p, struct Person *new_person_p);
 struct Person *insert_person_at_head(struct Person **head_p_p, struct Person *to_insert_p);
 struct Person *get_person_by_id(struct Person *head_p, const char *id);
 int is_same_person_names(struct Person *person_1_p, struct Person *person_2_p);
