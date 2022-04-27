@@ -133,8 +133,13 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
     // copy it before validation (validation using strtok and mutate it)
     strncpy(final_line_for_file, final_line_for_validation, INPUT_LINE_BUF_SIZE);
 
-    if (create_person_from_line(final_line_for_validation, 0, &new_person) == EXIT_SIGNAL)
-        return EXIT_SIGNAL; // malloc faild and the user want to exit
+    switch (create_person_from_line(final_line_for_validation, 0, &new_person))
+    {
+    case EXIT_SIGNAL: // malloc faild and the user want to exit
+        return EXIT_SIGNAL;
+    case RESULT_ERROR:
+        return RESULT_ERROR;
+    }
 
     // invalid field\s
     if (new_person == NULL)

@@ -164,7 +164,7 @@ enum validation_result validate_date(const char *date, size_t line_number)
 
 enum validation_result validate_date_parsing(struct Date *date)
 {
-    if (date->day == -1)
+    if (date->day == 0)
     {
         fputs("error while parsing the date.\n", stderr);
         return PROCESSING_FAILD;
