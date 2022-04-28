@@ -248,6 +248,12 @@ void free_person_linked_list(struct Person *head_p)
     }
 }
 
+void insert_after(struct Person *prev_p, struct Person *to_insert_p)
+{
+    to_insert_p->next_p = prev_p->next_p;
+    prev_p->next_p = to_insert_p;
+}
+
 // pointer to a pointer to change the value of head in the caller stack
 struct Person *insert_person_at_head(struct Person **head_p_p, struct Person *to_insert_p)
 {
@@ -297,11 +303,10 @@ int remove_person_from_the_list(struct Person **head_p_p, struct Person *person_
         return 1;
     }
 
+    // loop untile we found the person to remove or hit the end
     while (prev_p->next_p != person_p && prev_p->next_p != NULL)
-    {
         prev_p = prev_p->next_p;
-    }
-
+    // check why we out of the loop:
     // if got to the end
     if (prev_p->next_p == NULL)
         return 0;

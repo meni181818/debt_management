@@ -145,8 +145,10 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
     if (new_person == NULL)
         return RESULT_ERROR;
     new_person = insert_or_update_person(head_p_p, new_person, 0);
-    remove_person_from_the_list(head_p_p, new_person);
-    insert_person_in_order(head_p_p, new_person);
+    // conflicting names and id
+    if (new_person == NULL)
+        return RESULT_ERROR;
+    reorder_person(head_p_p, new_person);
 
     // write the new record line to the file
     fprintf(fp, "%s\n", final_line_for_file);
