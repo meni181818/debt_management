@@ -80,6 +80,31 @@ enum validation_result
     MISSING_COLUMNS = -6,
     TOO_MUCH_COLUMNS = -7,
     NULL_INPUT = -8,
-    PROCESSING_FAILD = -9,
+    PROCESSING_FAILED = -9,
 };
+
+// queries
+enum operators
+{
+    // less-than, less-equals, equals, not-equals, greater-equals, grater-than
+    OP_INVALID_OP = -1,
+    OP_LT,
+    OP_LE,
+    OP_EQ,
+    OP_NE,
+    OP_GE,
+    OP_GT
+};
+
+enum person_fields
+{
+    P_INVALID_FIELD = -1,
+    P_FIRST_NAME,
+    P_LAST_NAME,
+    P_ID,
+    P_PHONE,
+    P_CURRENT_DEBT,
+    P_DATE
+};
+
 #endif

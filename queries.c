@@ -33,7 +33,7 @@ int prompt(struct Person **head_p_p, FILE *fp)
         route_cmd_res = route_cmd(cmd_buf, cmd_len, head_p_p, fp);
         if (route_cmd_res == 'q') // 'quit'
             break;
-        if (route_cmd_res == EXIT_SIGNAL) // malloc faild and the user want to exit
+        if (route_cmd_res == EXIT_SIGNAL) // malloc failed and the user want to exit
             return EXIT_SIGNAL;
 
     }
@@ -43,7 +43,7 @@ int prompt(struct Person **head_p_p, FILE *fp)
 int route_cmd(char *cmd_str, size_t cmd_len, struct Person **head_p_p, FILE *fp)
 {
     char *tok = strtok(cmd_str, " ");
-    if (tok == NULL) // just hit space\s and enter
+    if (tok == NULL) // just hit space(s) and enter
         return RESULT_ERROR;
 
     if (strcmp(tok, "select") == 0)
@@ -72,12 +72,7 @@ int route_cmd(char *cmd_str, size_t cmd_len, struct Person **head_p_p, FILE *fp)
 
     return RESULT_ERROR;
 }
-/*
- * make set command.
- * parse the command and insert the new records to the data structure,
- * and write it to the file.
- * return: RESULT_SUCCESS or RESULT_ERROR or EXIT_SIGNAL
- */
+
 int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
 {
     char *fields_p_arr[PERSON_FIELDS_N] = {0}; // zero the arr
@@ -135,7 +130,7 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
 
     switch (create_person_from_line(final_line_for_validation, 0, &new_person))
     {
-    case EXIT_SIGNAL: // malloc faild and the user want to exit
+    case EXIT_SIGNAL: // malloc failed and the user want to exit
         return EXIT_SIGNAL;
     case RESULT_ERROR:
         return RESULT_ERROR;
@@ -270,7 +265,7 @@ enum operators parse_operator(const char *op_str)
         return OP_LT;
     if (strcmp(op_str, "<=") == 0)
         return OP_LE;
-    if (strcmp(op_str, "==") == 0)
+    if (strcmp(op_str, "=") == 0)
         return OP_EQ;
     if (strcmp(op_str, "!=") == 0)
         return OP_NE;
@@ -279,25 +274,6 @@ enum operators parse_operator(const char *op_str)
     if (strcmp(op_str, ">") == 0)
         return OP_GT;
     return OP_INVALID_OP;
-}
-
-// validate the value for the given field on the command. negative values when invalid. 0 when valid.
-enum validation_result validate_cmd_value(const char *value, enum person_fields field)
-{
-    switch (field)
-    {
-    case P_FIRST_NAME:
-    case P_LAST_NAME:
-        return _name_validation(value);
-    case P_ID:
-        return _id_validation(value);
-    case P_PHONE:
-        return _phone_validation(value);
-    case P_CURRENT_DEBT:
-        return _amount_validation(value);
-    case P_DATE:
-        return _date_validation(value);
-    }
 }
 
 /*

@@ -169,11 +169,130 @@ enum validation_result _line_cols_validation(const char *line)
     return VALID;
 }
 
-/*
- * return 1 if all the chars in *str return 1 for the given function pointer.
- * you can turn the check for evry char to !ctype_function by setting is_not_char to 1,
- * set it to 0 for positive check.
- */
+enum validation_result validate_line_cols(const char *line, size_t line_number)
+{
+    enum validation_result validation_res = _line_cols_validation(line);
+    if (validation_res == EMPTY_STRING)
+        fprintf(stderr, "error. empty line on the file. line no. %lu\n", line_number);
+    else if (validation_res == TOO_SHORT)
+        fprintf(stderr, "error. too short line on the file. line no. %lu\n", line_number);
+    else if (validation_res == MISSING_COLUMNS)
+        fprintf(stderr, "error. missing columns on the file. line no. %lu\n", line_number);
+    else if (validation_res == TOO_MUCH_COLUMNS)
+        fprintf(stderr, "error. too much columns on the file. line no. %lu\n", line_number);
+
+    return validation_res;
+}
+
+enum validation_result validate_not_null_column(char *col_str, size_t line_number, size_t col_number)
+{
+    if (col_str == NULL)
+    {
+        fprintf(stderr, "error. NULL column on line no. %lu column no. %lu.\n", line_number, col_number);
+        return NULL_INPUT;
+    }
+    return VALID;
+}
+
+enum validation_result validate_name(const char *name, const char *first_or_last, size_t line_number)
+{
+    enum validation_result validation_res = _name_validation(name);
+    if (validation_res == EMPTY_STRING)
+        fprintf(stderr, "error. empty %s name at line no. %lu\n", first_or_last, line_number);
+    else if (validation_res == CONTAINS_INVALID_CHARS)
+        fprintf(stderr, "error. the %s name \"%s\" contains invalid characters. line no. %lu\n", first_or_last, name, line_number);
+
+    return validation_res;
+}
+
+enum validation_result validate_id(const char *id, size_t line_number)
+{
+    enum validation_result validation_res = _id_validation(id);
+    if (validation_res == EMPTY_STRING)
+        fprintf(stderr, "error. empty id at line no. %lu\n", line_number);
+    else if (validation_res == TOO_SHORT)
+        fprintf(stderr, "error. the id \"%s\" is too short (should be 9 digits). line no. %lu\n", id, line_number);
+    else if (validation_res == TOO_LONG)
+        fprintf(stderr, "error. the id \"%s\" is too long (should be 9 digits). line no. %lu\n", id, line_number);
+    else if (validation_res == CONTAINS_INVALID_CHARS)
+        fprintf(stderr, "error. the id \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", id, line_number);
+
+    return validation_res;
+}
+
+enum validation_result validate_phone(const char *phone, size_t line_number)
+{
+    enum validation_result validation_res = _phone_validation(phone);
+    if (validation_res == EMPTY_STRING)
+        fprintf(stderr, "error. empty phone at line no. %lu\n", line_number);
+    else if (validation_res == TOO_SHORT)
+        fprintf(stderr, "error. the phone \"%s\" is too short (should be %d digits). line no. %lu\n", phone, PHONE_VALID_LEN, line_number);
+    else if (validation_res == TOO_LONG)
+        fprintf(stderr, "error. the phone \"%s\" is too long (should be %d digits). line no. %lu\n", phone, PHONE_VALID_LEN, line_number);
+    else if (validation_res == INVALID_FORMAT)
+        fprintf(stderr, "error. the phone \"%s\" is in invalid format. (should start with %s). line no. %lu\n", phone, PHONE_PREFIX, line_number);
+    else if (validation_res == CONTAINS_INVALID_CHARS)
+        fprintf(stderr, "error. the phone \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", phone, line_number);
+
+    return validation_res;
+}
+
+enum validation_result validate_amount(const char *amount, size_t line_number)
+{
+    enum validation_result validation_res = _amount_validation(amount);
+    if (validation_res == EMPTY_STRING)
+        fprintf(stderr, "error. empty amount at line no. %lu\n", line_number);
+    else if (validation_res == CONTAINS_INVALID_CHARS)
+        fprintf(stderr, "error. the amount \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", amount, line_number);
+
+    return validation_res;
+}
+
+enum validation_result validate_date(const char *date, size_t line_number)
+{
+    enum validation_result validation_res = _date_validation(date);
+    if (validation_res == EMPTY_STRING)
+        fprintf(stderr, "error. empty date at line no. %lu\n", line_number);
+    else if (validation_res == TOO_SHORT)
+        fprintf(stderr, "error. too short date at line no. %lu\n", line_number);
+    else if (validation_res == TOO_LONG)
+        fprintf(stderr, "error. too long date at line no. %lu\n", line_number);
+    else if (validation_res == CONTAINS_INVALID_CHARS)
+        fprintf(stderr, "error. the date \"%s\" contains invalid characters. line no. %lu\n", date, line_number);
+    else if (validation_res == INVALID_FORMAT)
+        fprintf(stderr, "error. the date \"%s\" is in invalid format. line no. %lu\n", date, line_number);
+
+    return validation_res;
+}
+
+enum validation_result validate_date_parsing(struct Date *date)
+{
+    if (date->day == 0)
+    {
+        fputs("error while parsing the date.\n", stderr);
+        return PROCESSING_FAILED;
+    }
+    return VALID;
+}
+
+enum validation_result validate_cmd_value(const char *value, enum person_fields field)
+{
+    switch (field)
+    {
+    case P_FIRST_NAME:
+    case P_LAST_NAME:
+        return _name_validation(value);
+    case P_ID:
+        return _id_validation(value);
+    case P_PHONE:
+        return _phone_validation(value);
+    case P_CURRENT_DEBT:
+        return _amount_validation(value);
+    case P_DATE:
+        return _date_validation(value);
+    }
+}
+
 int str_isctype(const char *str, int (*ctype_func_ptr)(int ch), int is_not_char)
 {
     while (*str)
@@ -182,7 +301,6 @@ int str_isctype(const char *str, int (*ctype_func_ptr)(int ch), int is_not_char)
     return 1;
 }
 
-// return how many times ch found in *str. (zero if not found)
 size_t str_count_char(const char *str, const char ch)
 {
     size_t count = 0;

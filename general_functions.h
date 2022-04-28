@@ -32,7 +32,7 @@ char *str_replace_in_place(char *str_in, char *old, char *new);
 /*
  * try to malloc() and in case of failure let the user select
  * try again or exit.
- * return: not-NULL if success, NULL if faild and user want to exit.
+ * return: not-NULL if success, NULL if failed and user want to exit.
  */
 void *try_malloc(size_t size);
 /*

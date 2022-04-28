@@ -7,7 +7,7 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
     size_t cols_count = 1;
     int ret_val = RESULT_ERROR;
     *new_person_p_p = (struct Person *)try_malloc(sizeof(struct Person));
-    if (*new_person_p_p == NULL) // malloc faild and the user want to exit
+    if (*new_person_p_p == NULL) // malloc failed and the user want to exit
         return EXIT_SIGNAL;
 
     char *tok = strtok(line, FILE_DELIM_STR);
@@ -20,7 +20,7 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "first", line_number) != VALID)
             break;
         (*new_person_p_p)->first_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
-        if ((*new_person_p_p)->first_name == NULL) // malloc faild and the user want to exit
+        if ((*new_person_p_p)->first_name == NULL) // malloc failed and the user want to exit
         {
             ret_val = EXIT_SIGNAL;
             break;
@@ -33,7 +33,7 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "last", line_number) != VALID)
             break;
         (*new_person_p_p)->last_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
-        if ((*new_person_p_p)->last_name == NULL) // malloc faild and the user want to exit
+        if ((*new_person_p_p)->last_name == NULL) // malloc failed and the user want to exit
         {
             ret_val = EXIT_SIGNAL;
             break;
@@ -81,98 +81,6 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
     return ret_val;
 }
 
-enum validation_result validate_not_null_column(char *col_str, size_t line_number, size_t col_number)
-{
-    if (col_str == NULL)
-    {
-        fprintf(stderr, "error. NULL column on line no. %lu column no. %lu.\n", line_number, col_number);
-        return NULL_INPUT;
-    }
-    return VALID;
-}
-
-enum validation_result validate_name(const char *name, const char *first_or_last, size_t line_number)
-{
-    enum validation_result validation_res = _name_validation(name);
-    if (validation_res == EMPTY_STRING)
-        fprintf(stderr, "error. empty %s name at line no. %lu\n", first_or_last, line_number);
-    else if (validation_res == CONTAINS_INVALID_CHARS)
-        fprintf(stderr, "error. the %s name \"%s\" contains invalid characters. line no. %lu\n", first_or_last, name, line_number);
-
-    return validation_res;
-}
-
-enum validation_result validate_id(const char *id, size_t line_number)
-{
-    enum validation_result validation_res = _id_validation(id);
-    if (validation_res == EMPTY_STRING)
-        fprintf(stderr, "error. empty id at line no. %lu\n", line_number);
-    else if (validation_res == TOO_SHORT)
-        fprintf(stderr, "error. the id \"%s\" is too short (should be 9 digits). line no. %lu\n", id, line_number);
-    else if (validation_res == TOO_LONG)
-        fprintf(stderr, "error. the id \"%s\" is too long (should be 9 digits). line no. %lu\n", id, line_number);
-    else if (validation_res == CONTAINS_INVALID_CHARS)
-        fprintf(stderr, "error. the id \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", id, line_number);
-
-    return validation_res;
-}
-
-enum validation_result validate_phone(const char *phone, size_t line_number)
-{
-    enum validation_result validation_res = _phone_validation(phone);
-    if (validation_res == EMPTY_STRING)
-        fprintf(stderr, "error. empty phone at line no. %lu\n", line_number);
-    else if (validation_res == TOO_SHORT)
-        fprintf(stderr, "error. the phone \"%s\" is too short (should be %d digits). line no. %lu\n", phone, PHONE_VALID_LEN, line_number);
-    else if (validation_res == TOO_LONG)
-        fprintf(stderr, "error. the phone \"%s\" is too long (should be %d digits). line no. %lu\n", phone, PHONE_VALID_LEN, line_number);
-    else if (validation_res == INVALID_FORMAT)
-        fprintf(stderr, "error. the phone \"%s\" is in invalid format. (should start with %s). line no. %lu\n", phone, PHONE_PREFIX, line_number);
-    else if (validation_res == CONTAINS_INVALID_CHARS)
-        fprintf(stderr, "error. the phone \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", phone, line_number);
-
-    return validation_res;
-}
-
-enum validation_result validate_amount(const char *amount, size_t line_number)
-{
-    enum validation_result validation_res = _amount_validation(amount);
-    if (validation_res == EMPTY_STRING)
-        fprintf(stderr, "error. empty amount at line no. %lu\n", line_number);
-    else if (validation_res == CONTAINS_INVALID_CHARS)
-        fprintf(stderr, "error. the amount \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", amount, line_number);
-
-    return validation_res;
-}
-
-enum validation_result validate_date(const char *date, size_t line_number)
-{
-    enum validation_result validation_res = _date_validation(date);
-    if (validation_res == EMPTY_STRING)
-        fprintf(stderr, "error. empty date at line no. %lu\n", line_number);
-    else if (validation_res == TOO_SHORT)
-        fprintf(stderr, "error. too short date at line no. %lu\n", line_number);
-    else if (validation_res == TOO_LONG)
-        fprintf(stderr, "error. too long date at line no. %lu\n", line_number);
-    else if (validation_res == CONTAINS_INVALID_CHARS)
-        fprintf(stderr, "error. the date \"%s\" contains invalid characters. line no. %lu\n", date, line_number);
-    else if (validation_res == INVALID_FORMAT)
-        fprintf(stderr, "error. the date \"%s\" is in invalid format. line no. %lu\n", date, line_number);
-
-    return validation_res;
-}
-
-enum validation_result validate_date_parsing(struct Date *date)
-{
-    if (date->day == 0)
-    {
-        fputs("error while parsing the date.\n", stderr);
-        return PROCESSING_FAILD;
-    }
-    return VALID;
-}
-
-// return NULL if no valid person loaded from the line, or a pointer to if loaded 1 valid person
 struct Person *insert_or_update_person(struct Person **head_p_p, struct Person *new_person_p, size_t line_number)
 {
     struct Person *old_person_p;
@@ -205,29 +113,6 @@ struct Person *insert_or_update_person(struct Person **head_p_p, struct Person *
         ret = new_person_p;
     }
     return ret;
-}
-
-/*
- * call _line_cols_validation function with the line
- * and print related error message if the line invalid.
- * param: line: the string of aline from the file.
- * param: line_n: the line number.
- * return: the validation code of _line_cols_validation.
- * negative value if invalid or 0 when valid.
- */
-enum validation_result validate_line_cols(const char *line, size_t line_number)
-{
-    enum validation_result validation_res = _line_cols_validation(line);
-    if (validation_res == EMPTY_STRING)
-        fprintf(stderr, "error. empty line on the file. line no. %lu\n", line_number);
-    else if (validation_res == TOO_SHORT)
-        fprintf(stderr, "error. too short line on the file. line no. %lu\n", line_number);
-    else if (validation_res == MISSING_COLUMNS)
-        fprintf(stderr, "error. missing columns on the file. line no. %lu\n", line_number);
-    else if (validation_res == TOO_MUCH_COLUMNS)
-        fprintf(stderr, "error. too much columns on the file. line no. %lu\n", line_number);
-
-    return validation_res;
 }
 
 void free_person(struct Person *preson_p)

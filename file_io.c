@@ -43,6 +43,8 @@ int load_from_file(FILE *fp, struct Person **head_p_p)
     char line_buf[INPUT_LINE_BUF_SIZE];
     struct Person *new_preson_p;
 
+    fputs("loading data from the file...\n\n", stdout);
+    
     // read line by line until the EOF
     while (fgets(line_buf, INPUT_LINE_BUF_SIZE, fp) != NULL)
     {
@@ -60,7 +62,7 @@ int load_from_file(FILE *fp, struct Person **head_p_p)
             {
                 switch (create_person_from_line(line_buf, lines_count, &new_preson_p))
                 {
-                case EXIT_SIGNAL: // malloc faild and the user want to exit
+                case EXIT_SIGNAL: // malloc failed and the user want to exit
                     return EXIT_SIGNAL;
                 case RESULT_SUCCESS:
                     ret_val += (insert_or_update_person(head_p_p, new_preson_p, lines_count) != NULL);

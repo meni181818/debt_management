@@ -24,34 +24,18 @@
 
 #define PRINT_QUIERIES_HELP fputs(QUIERIES_HELP_TXT, stdout);
 
-enum operators
-{
-    // less-than, less-equals, equals, not-equals, greater-equals, grater-than
-    OP_INVALID_OP = -1,
-    OP_LT,
-    OP_LE,
-    OP_EQ,
-    OP_NE,
-    OP_GE,
-    OP_GT
-};
-
-enum person_fields
-{
-    P_INVALID_FIELD = -1,
-    P_FIRST_NAME,
-    P_LAST_NAME,
-    P_ID,
-    P_PHONE,
-    P_CURRENT_DEBT,
-    P_DATE
-};
-
 // operate the overall prompt feature
 int prompt(struct Person **head_p_p, FILE *fp);
 int route_cmd(char *cmd_str, size_t cmd_len, struct Person **head_p_p, FILE *fp);
 
 int make_select(char *cmd_tok, struct Person *head_p);
+
+/*
+ * make set command.
+ * parse the command and insert the new records to the data structure,
+ * and write it to the file.
+ * return: RESULT_SUCCESS or RESULT_ERROR or EXIT_SIGNAL
+ */
 int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp);
 
 // returns wich field is in the str

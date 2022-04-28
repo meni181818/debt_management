@@ -101,7 +101,7 @@ void *try_malloc(size_t size)
 
     while ((ret = malloc(size)) == NULL)
     {
-        user_selection = get_user_selection_1_9("memory allocation faild. please select:\n1. try again.\n2. exit.", 2);
+        user_selection = get_user_selection_1_9("memory allocation failed. please select:\n1. try again.\n2. exit.", 2);
         if (user_selection == 2)
             break;
     }

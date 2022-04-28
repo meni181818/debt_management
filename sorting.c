@@ -80,7 +80,7 @@ void front_back_split(struct Person *source, struct Person **front_ref, struct P
 
 void reorder_person(struct Person **head_p_p, struct Person *to_reorder_p)
 {
-    // if next is the tail or next < to_reorder => maybe the right place is before =>
+    // if next is the tail or next > to_reorder => maybe the right place is before =>
     // remove it and search the right place from the beginning
     if (to_reorder_p->next_p == NULL || to_reorder_p->current_debt < to_reorder_p->next_p->current_debt)
     {
@@ -97,7 +97,6 @@ void reorder_person(struct Person **head_p_p, struct Person *to_reorder_p)
     // else the next == to_insert. no need to move.
 }
 
-// return the prev to insert after
 struct Person *find_insertion_point(struct Person *start_search_p, struct Person *to_insert_p)
 {
     while (start_search_p->next_p != NULL && start_search_p->next_p->current_debt < to_insert_p->current_debt)
@@ -105,7 +104,6 @@ struct Person *find_insertion_point(struct Person *start_search_p, struct Person
     return start_search_p;
 }
 
-// insert to_insert_p at the first place where his->current_debt <= next element->current_debt
 void insert_person_in_order(struct Person **head_p_p, struct Person *to_insert_p)
 {
     // empty list or the first element >= to_insert =>
