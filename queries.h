@@ -34,14 +34,19 @@ int make_select(char *cmd_tok, struct Person *head_p);
  * make set command.
  * parse the command and insert the new records to the data structure,
  * and write it to the file.
- * return: RESULT_SUCCESS or RESULT_ERROR or EXIT_SIGNAL
+ * return: RESULT_SUCCESS or RESULT_ERROR or EXIT_SIGNAL_ERROR
  */
 int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp);
 
 // returns wich field is in the str
 enum person_fields parse_field(char *field_tok);
 enum operators parse_operator(const char *op_str);
-enum validation_result validate_cmd_value(const char *value, enum person_fields field);
+/*
+ * loop on the persons linked list and print the matching objects.
+ * params: head pointer, operator, value (-to check the condition).
+ *         comparison_func_p => pointer to a comparison function.
+ * return: the number of matching persons.
+ */
 size_t print_persons_filtered(
     struct Person *head_p, enum operators op, void *value,
     int (*comparison_func_p)(struct Person *person_p, enum operators op, void *value));

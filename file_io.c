@@ -1,11 +1,11 @@
 #include "file_io.h"
 
-FILE *try_to_open_the_file(const char *file_name)
+FILE *try_fopen(const char *file_name, const char *modes)
 {
     FILE *fp;
     int user_selection;
 
-    while ((fp = fopen(file_name, "r+")) == NULL)
+    while ((fp = fopen(file_name, modes)) == NULL)
     {
         fprintf(stderr, "error. can not open the file \"%s\".\n", file_name);
         user_selection = get_user_selection_1_9(
@@ -35,16 +35,20 @@ int is_empty_file(FILE *fp)
     return ch == EOF;
 }
 
-// return the number of valid lines that loaded
 int load_from_file(FILE *fp, struct Person **head_p_p)
 {
-    int ret_val, create_person_res;
+    int valid_lines_loaded = 0;
     size_t lines_count = 1, line_len;
     char line_buf[INPUT_LINE_BUF_SIZE];
     struct Person *new_preson_p;
 
+    if (is_empty_file(fp)) // check if the file is empty
+    {
+        fputs("the file is empty.\n\n", stdout);
+        return 0; // 0 loaded
+    }
     fputs("loading data from the file...\n\n", stdout);
-    
+
     // read line by line until the EOF
     while (fgets(line_buf, INPUT_LINE_BUF_SIZE, fp) != NULL)
     {
@@ -57,20 +61,23 @@ int load_from_file(FILE *fp, struct Person **head_p_p)
         }
         else // the line is not too long
         {
-            RTRIM_NEW_LINE(line_buf, line_len); // remove '\n' from the end
+            RTRIM_NEW_LINE(line_buf, line_len);                     // remove '\n' from the end
             if (validate_line_cols(line_buf, lines_count) == VALID) // valid line format
             {
                 switch (create_person_from_line(line_buf, lines_count, &new_preson_p))
                 {
-                case EXIT_SIGNAL: // malloc failed and the user want to exit
-                    return EXIT_SIGNAL;
+                case EXIT_SIGNAL_ERROR: // malloc failed and the user want to exit
+                    return EXIT_SIGNAL_ERROR;
                 case RESULT_SUCCESS:
-                    ret_val += (insert_or_update_person(head_p_p, new_preson_p, lines_count) != NULL);
+                    // if the data of the new person was inserted we get back non-NULL pointer
+                    valid_lines_loaded += (insert_or_update_person(head_p_p, new_preson_p, lines_count) != NULL);
                 }
             }
         }
         lines_count++;
     }
 
-    return ret_val;
+    printf("%d valid records loaded from the file.\n\n", valid_lines_loaded);
+
+    return valid_lines_loaded;
 }

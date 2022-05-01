@@ -4,8 +4,7 @@
 void merge_sort(struct Person **head_ref)
 {
     struct Person *head = *head_ref;
-    struct Person *a;
-    struct Person *b;
+    struct Person *a, *b;
 
     // base case -- length 0 or 1
     if ((head == NULL) || (head->next_p == NULL))
@@ -54,8 +53,7 @@ struct Person *sorted_merge(struct Person *a, struct Person *b)
  */
 void front_back_split(struct Person *source, struct Person **front_ref, struct Person **back_ref)
 {
-    struct Person *fast;
-    struct Person *slow;
+    struct Person *fast, *slow;
     slow = source;
     fast = source->next_p;
 

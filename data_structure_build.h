@@ -2,7 +2,12 @@
 #include "general_functions.h"
 #include "validation.h"
 
-
+/* 
+ * creates new Person object from a 'line' of the file.
+ * validating all the fields.
+ * on success: RESULT_SUCCESS
+ * on failure: RESULT_ERROR or EXIT_SIGNAL_ERROR
+ */
 int create_person_from_line(char *line, size_t line_number, struct Person **new_person_p_p);
 
 // return a Person pointer if new_person_p inserted/updated to the list, else (-invalid id etc.) NULL

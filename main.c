@@ -2,7 +2,7 @@
 
 int main(int argc, char const *argv[])
 {
-    int ret_val = RESULT_SUCCESS;
+    int ret_val = EXIT_SUCCESS;
     FILE *fp_debts;
     int load_file_res;
     struct Person *persons_head_p = NULL;
@@ -12,32 +12,26 @@ int main(int argc, char const *argv[])
                argv[0], DEFAULT_FILE_NAME);
 
     // pass the file name argument if got it, else the default file name
-    fp_debts = try_to_open_the_file(argc > 1 ? argv[1] : DEFAULT_FILE_NAME);
-    if (fp_debts == NULL)
-        return RESULT_ERROR;
-    
+    fp_debts = try_fopen(argc > 1 ? argv[1] : DEFAULT_FILE_NAME, "r+");
+    if (fp_debts == NULL) // failed to fopen() and the user chose to exit
+        return EXIT_FAILURE;
+
     do // do while(0), in case of error: break to free() and close();
     {
-        if (is_empty_file(fp_debts)) // check if the file is empty
+        load_file_res = load_from_file(fp_debts, &persons_head_p);
+        if (load_file_res == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
         {
-            fputs("the file is empty.\n\n", stdout);
-        }
-        else // the file is not empty, read it
-        {
-            load_file_res = load_from_file(fp_debts, &persons_head_p);
-            if (load_file_res == EXIT_SIGNAL) // malloc failed and the user want to exit
-            {
-                ret_val = RESULT_ERROR;
-                break;
-            }
-            printf("%d valid records loaded from the file.\n\n", load_file_res);
-            merge_sort(&persons_head_p);
-            print_persons_records(persons_head_p);
-        }
-        if (prompt(&persons_head_p, fp_debts) == EXIT_SIGNAL) // malloc failed and the user want to exit
-        {
-            ret_val = RESULT_ERROR;
+            ret_val = EXIT_FAILURE;
             break;
+        }
+
+        merge_sort(&persons_head_p);
+        print_persons_records(persons_head_p);
+
+        if (prompt(&persons_head_p, fp_debts) == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
+        {
+            ret_val = EXIT_FAILURE;
+            break; // important: added break even there is no more lines, in case we want to add code later 
         }
     } while (0);
 

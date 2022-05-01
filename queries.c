@@ -31,11 +31,10 @@ int prompt(struct Person **head_p_p, FILE *fp)
         str_replace_in_place(cmd_buf, "last name", "last_name");
 
         route_cmd_res = route_cmd(cmd_buf, cmd_len, head_p_p, fp);
-        if (route_cmd_res == 'q') // 'quit'
+        if (route_cmd_res == EXIT_SIGNAL) // 'quit' command
             break;
-        if (route_cmd_res == EXIT_SIGNAL) // malloc failed and the user want to exit
-            return EXIT_SIGNAL;
-
+        if (route_cmd_res == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
+            return EXIT_SIGNAL_ERROR;
     }
     return RESULT_SUCCESS;
 }
@@ -59,7 +58,7 @@ int route_cmd(char *cmd_str, size_t cmd_len, struct Person **head_p_p, FILE *fp)
     }
 
     if (strcmp(tok, "quit") == 0 && strtok(NULL, " ") == NULL) // && no another word(s)
-        return 'q';
+        return EXIT_SIGNAL;
 
     if (strcmp(tok, "help") == 0 && strtok(NULL, " ") == NULL) // && no another word(s)
     {
@@ -130,8 +129,8 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
 
     switch (create_person_from_line(final_line_for_validation, 0, &new_person))
     {
-    case EXIT_SIGNAL: // malloc failed and the user want to exit
-        return EXIT_SIGNAL;
+    case EXIT_SIGNAL_ERROR: // malloc failed and the user want to exit
+        return EXIT_SIGNAL_ERROR;
     case RESULT_ERROR:
         return RESULT_ERROR;
     }
@@ -157,7 +156,7 @@ int make_select(char *cmd_tok, struct Person *head_p)
     // pointer to the value to compare
     void *value_p;
     // array of pointers to comparison functions
-    int (*comparison_funcs_arr[PERSON_FIELDS_N])(struct Person * person_p, enum operators op, void *value) = {
+    static int (*comparison_funcs_arr[PERSON_FIELDS_N])(struct Person * person_p, enum operators op, void *value) = {
         &check_first_name_condition, &check_last_name_condition,
         &check_id_condition, &check_phone_condition,
         &check_amount_condition, &check_date_condition};
@@ -239,6 +238,8 @@ int make_select(char *cmd_tok, struct Person *head_p)
     // if no result
     if (!found_count)
         fputs("no results found for the query\n", stdout);
+    else
+        printf("found %lu matching records\n", found_count);
     return RESULT_SUCCESS;
 }
 
@@ -276,12 +277,6 @@ enum operators parse_operator(const char *op_str)
     return OP_INVALID_OP;
 }
 
-/*
- * loop on the persons linked list and print the matching objects.
- * params: head pointer, operator, value (-to check the condition).
- *         comparison_func_p => pointer to a comparison function.
- * return: the number of matching persons.
- */
 size_t print_persons_filtered(
     struct Person *head_p, enum operators op, void *value,
     int (*comparison_func_p)(struct Person *person_p, enum operators op, void *value))
@@ -332,7 +327,7 @@ int check_amount_condition(struct Person *person_p, enum operators op, void *val
 
 int check_date_condition(struct Person *person_p, enum operators op, void *given_date)
 {
-    return check_condition(op, date_compare(&person_p->first_trans_date, (struct Date *)given_date));
+    return check_condition(op, date_compare(&person_p->erliest_date, (struct Date *)given_date));
 }
 
 int check_condition(enum operators op, float cmp_res)

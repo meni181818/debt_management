@@ -6,6 +6,8 @@ enum validation_result _id_validation(const char *id_str);
 enum validation_result _phone_validation(const char *phone);
 enum validation_result _amount_validation(const char *amount);
 enum validation_result _date_validation(const char *date);
+// validate [day|month|year] token
+enum validation_result _date_token_validation(char *date_tok, int min_val, int max_val, int max_len);
 enum validation_result _line_cols_validation(const char *line);
 
 /*

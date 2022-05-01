@@ -6,11 +6,14 @@
 #ifndef DEBT_MANAGMENT_GENERAL_DEFS
 #define DEBT_MANAGMENT_GENERAL_DEFS
 
+// return values: negative values for functions that return counts
+#define RESULT_SUCCESS -1
+#define RESULT_ERROR -2
+#define EXIT_SIGNAL_ERROR -3
+#define EXIT_SIGNAL -4
+
 #define DEFAULT_FILE_NAME "debts.csv"
 #define PERSON_FIELDS_N 6
-#define RESULT_ERROR 1
-#define RESULT_SUCCESS 0
-#define EXIT_SIGNAL -1
 #define INPUT_LINE_BUF_SIZE 256
 #define PERSONS_TABLE_HEADER "\nfirst name\tlast name \tid       \tphone     \tcurrent debt\tearliest date\n\n"
 
@@ -26,8 +29,8 @@
     printf("%-10s\t%-10s\t%s\t%s\t%12g\t   %02d/%02d/%d\n",                  \
            person_p->first_name, person_p->last_name, person_p->id,          \
            person_p->phone, person_p->current_debt,                          \
-           person_p->first_trans_date.day, person_p->first_trans_date.month, \
-           person_p->first_trans_date.year);
+           person_p->erliest_date.day, person_p->erliest_date.month, \
+           person_p->erliest_date.year);
 
 #define DATE_DELIM_STR "/"
 
@@ -45,7 +48,8 @@ struct Person
     char id[10];
     char phone[11];
     float current_debt;
-    struct Date first_trans_date;
+    struct Date erliest_date;
+    struct Date latest_date;
     struct Person *next_p;
 };
 
@@ -68,6 +72,9 @@ struct Person
 #define DATE_MAX_MONTH 12
 #define DATE_MIN_YEAR 1000
 #define DATE_MAX_YEAR 9999
+#define DATE_MAX_DAY_LEN 2
+#define DATE_MAX_MONTH_LEN 2
+#define DATE_MAX_YEAR_LEN 4
 
 enum validation_result
 {

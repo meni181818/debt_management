@@ -1,14 +1,12 @@
 #include "data_structure_build.h"
 
-// on success: pointer to a new Person object.
-// on failure: NULL
-int create_person_from_line(char *line, size_t line_number, struct Person **new_person_p_p) // TODO: seperate to several functions <<
+int create_person_from_line(char *line, size_t line_number, struct Person **new_person_p_p)
 {
     size_t cols_count = 1;
     int ret_val = RESULT_ERROR;
     *new_person_p_p = (struct Person *)try_malloc(sizeof(struct Person));
     if (*new_person_p_p == NULL) // malloc failed and the user want to exit
-        return EXIT_SIGNAL;
+        return EXIT_SIGNAL_ERROR;
 
     char *tok = strtok(line, FILE_DELIM_STR);
 
@@ -22,7 +20,7 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
         (*new_person_p_p)->first_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
         if ((*new_person_p_p)->first_name == NULL) // malloc failed and the user want to exit
         {
-            ret_val = EXIT_SIGNAL;
+            ret_val = EXIT_SIGNAL_ERROR;
             break;
         }
         strcpy((*new_person_p_p)->first_name, tok);
@@ -35,7 +33,7 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
         (*new_person_p_p)->last_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
         if ((*new_person_p_p)->last_name == NULL) // malloc failed and the user want to exit
         {
-            ret_val = EXIT_SIGNAL;
+            ret_val = EXIT_SIGNAL_ERROR;
             break;
         }
         strcpy((*new_person_p_p)->last_name, tok);
@@ -66,9 +64,9 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
         tok = strtok(NULL, FILE_DELIM_STR);
         if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_date(tok, line_number) != VALID)
             break;
-        (*new_person_p_p)->first_trans_date = str_to_date(tok);
+        (*new_person_p_p)->erliest_date = (*new_person_p_p)->latest_date = str_to_date(tok);
         // validate we got 3 tokens
-        if (validate_date_parsing(&(*new_person_p_p)->first_trans_date) != VALID)
+        if (validate_date_parsing(&(*new_person_p_p)->erliest_date) != VALID)
             break;
 
         (*new_person_p_p)->next_p = NULL;
@@ -167,9 +165,10 @@ void update_person_debt_date_phone(struct Person *old_person_p, struct Person *n
 {
     old_person_p->current_debt += new_person_p->current_debt;
     // if the new_person have older date => update the date.
-    if (date_compare(&old_person_p->first_trans_date, &new_person_p->first_trans_date) > 0)
-        old_person_p->first_trans_date = new_person_p->first_trans_date;
-    else // the new person Date >= old person date, update the phone
+    if (date_compare(&old_person_p->erliest_date, &new_person_p->erliest_date) > 0)
+        old_person_p->erliest_date = new_person_p->erliest_date;
+    // update the phone if it's newer
+    if (date_compare(&old_person_p->latest_date, &new_person_p->latest_date) <= 0)
         strncpy(old_person_p->phone, new_person_p->phone, PHONE_VALID_LEN);
 }
 
