@@ -17,7 +17,7 @@
 #define INPUT_LINE_BUF_SIZE 256
 #define PERSONS_TABLE_HEADER "\nfirst name\tlast name \tid       \tphone     \tcurrent debt\tearliest date\n\n"
 
-// functions-like macros <<< [a, b, c, \n, \0]
+// functions-like macros
 #define RTRIM_NEW_LINE(line, len)  \
     do                             \
     {                              \

@@ -18,6 +18,8 @@ struct Person *insert_person_at_head(struct Person **head_p_p, struct Person *to
 void insert_after(struct Person *prev_p, struct Person *to_insert_p);
 struct Person *get_person_by_id(struct Person *head_p, const char *id);
 int is_same_person_names(struct Person *person_1_p, struct Person *person_2_p);
+// remove from the list, NO FREE!
+// return: if found: 1, if not found: 0
 int remove_person_from_the_list(struct Person **head_p_p, struct Person *person_p);
 
 void free_person(struct Person *preson_p);

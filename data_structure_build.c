@@ -10,71 +10,68 @@ int create_person_from_line(char *line, size_t line_number, struct Person **new_
 
     char *tok = strtok(line, FILE_DELIM_STR);
 
-    do
+    // if invalid: goto out_cleanup, return NULL.
+    // if valid: insert the data to new_person_p
+    // first name
+    if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "first", line_number) != VALID)
+        goto out_cleanup;
+    (*new_person_p_p)->first_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
+    if ((*new_person_p_p)->first_name == NULL) // malloc failed and the user want to exit
     {
-        // if invalid: break out and free, return NULL.
-        // if valid: insert to new_person_p
-        // first name
-        if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "first", line_number) != VALID)
-            break;
-        (*new_person_p_p)->first_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
-        if ((*new_person_p_p)->first_name == NULL) // malloc failed and the user want to exit
-        {
-            ret_val = EXIT_SIGNAL_ERROR;
-            break;
-        }
-        strcpy((*new_person_p_p)->first_name, tok);
-        cols_count++;
+        ret_val = EXIT_SIGNAL_ERROR;
+        goto out_cleanup;
+    }
+    strcpy((*new_person_p_p)->first_name, tok);
+    cols_count++;
 
-        // last name
-        tok = strtok(NULL, FILE_DELIM_STR);
-        if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "last", line_number) != VALID)
-            break;
-        (*new_person_p_p)->last_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
-        if ((*new_person_p_p)->last_name == NULL) // malloc failed and the user want to exit
-        {
-            ret_val = EXIT_SIGNAL_ERROR;
-            break;
-        }
-        strcpy((*new_person_p_p)->last_name, tok);
-        cols_count++;
+    // last name
+    tok = strtok(NULL, FILE_DELIM_STR);
+    if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_name(tok, "last", line_number) != VALID)
+        goto out_cleanup;
+    (*new_person_p_p)->last_name = (char *)try_malloc((strlen(tok) + 1) * sizeof(char));
+    if ((*new_person_p_p)->last_name == NULL) // malloc failed and the user want to exit
+    {
+        ret_val = EXIT_SIGNAL_ERROR;
+        goto out_cleanup;
+    }
+    strcpy((*new_person_p_p)->last_name, tok);
+    cols_count++;
 
-        // id
-        tok = strtok(NULL, FILE_DELIM_STR);
-        if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_id(tok, line_number) != VALID)
-            break;
-        strncpy((*new_person_p_p)->id, tok, ID_VALID_LEN + 1); // + 1 for '\0'
-        cols_count++;
+    // id
+    tok = strtok(NULL, FILE_DELIM_STR);
+    if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_id(tok, line_number) != VALID)
+        goto out_cleanup;
+    strncpy((*new_person_p_p)->id, tok, ID_VALID_LEN + 1); // + 1 for '\0'
+    cols_count++;
 
-        // phone
-        tok = strtok(NULL, FILE_DELIM_STR);
-        if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_phone(tok, line_number) != VALID)
-            break;
-        strncpy((*new_person_p_p)->phone, tok, PHONE_VALID_LEN + 1); // + 1 for '\0'
-        cols_count++;
+    // phone
+    tok = strtok(NULL, FILE_DELIM_STR);
+    if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_phone(tok, line_number) != VALID)
+        goto out_cleanup;
+    strncpy((*new_person_p_p)->phone, tok, PHONE_VALID_LEN + 1); // + 1 for '\0'
+    cols_count++;
 
-        // amount
-        tok = strtok(NULL, FILE_DELIM_STR);
-        if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_amount(tok, line_number) != VALID)
-            break;
-        (*new_person_p_p)->current_debt = atof(tok);
-        cols_count++;
+    // amount
+    tok = strtok(NULL, FILE_DELIM_STR);
+    if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_amount(tok, line_number) != VALID)
+        goto out_cleanup;
+    (*new_person_p_p)->current_debt = atof(tok);
+    cols_count++;
 
-        // date
-        tok = strtok(NULL, FILE_DELIM_STR);
-        if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_date(tok, line_number) != VALID)
-            break;
-        (*new_person_p_p)->erliest_date = (*new_person_p_p)->latest_date = str_to_date(tok);
-        // validate we got 3 tokens
-        if (validate_date_parsing(&(*new_person_p_p)->erliest_date) != VALID)
-            break;
+    // date
+    tok = strtok(NULL, FILE_DELIM_STR);
+    if (validate_not_null_column(tok, line_number, cols_count) != VALID || validate_date(tok, line_number) != VALID)
+        goto out_cleanup;
+    (*new_person_p_p)->erliest_date = (*new_person_p_p)->latest_date = str_to_date(tok);
+    // validate we got 3 tokens
+    if (validate_date_parsing(&(*new_person_p_p)->erliest_date) != VALID)
+        goto out_cleanup;
 
-        (*new_person_p_p)->next_p = NULL;
+    (*new_person_p_p)->next_p = NULL;
+    // all valid
+    return RESULT_SUCCESS;
 
-        return RESULT_SUCCESS;
-    } while (0);
-
-    // in case of failure, we breaking out of the do-while
+out_cleanup: // in case of failure, we breaking out of the do-while
     free_person((*new_person_p_p));
     return ret_val;
 }
@@ -172,8 +169,6 @@ void update_person_debt_date_phone(struct Person *old_person_p, struct Person *n
         strncpy(old_person_p->phone, new_person_p->phone, PHONE_VALID_LEN);
 }
 
-// remove from the list, NO FREE!
-// return: if found: 1, if not found: 0
 int remove_person_from_the_list(struct Person **head_p_p, struct Person *person_p)
 {
     struct Person *prev_p = *head_p_p;
