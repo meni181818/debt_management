@@ -40,7 +40,7 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp);
 
 // returns wich field is in the str
 enum person_fields parse_field(char *field_tok);
-enum operators parse_operator(const char *op_str);
+enum operators parse_operator(const char *op_str, size_t op_len);
 /*
  * loop on the persons linked list and print the matching objects.
  * params: head pointer, operator, value (-to check the condition).

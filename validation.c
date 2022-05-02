@@ -41,8 +41,12 @@ enum validation_result _name_validation(const char *name)
     // no name
     if (*name == '\0')
         return EMPTY_STRING;
-    if (!str_isctype(name, &isalpha, 0))
-        return CONTAINS_INVALID_CHARS;
+    while (*name)
+    {
+        if (!isalpha(*name) && *name != ' ')
+            return CONTAINS_INVALID_CHARS;
+        name++;
+    }
 
     return VALID;
 }

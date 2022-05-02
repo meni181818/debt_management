@@ -80,15 +80,15 @@ void finish_line(FILE *fp)
         ;
 }
 
-char *str_replace_in_place(char *str_in, char *old, char *new)
+char *str_replace_in_place(char *str_in, char *old_str, char *new_str)
 {
-    size_t rep_len = strlen(old);
+    size_t rep_len = strlen(old_str);
     char *rep_p;
-    if (rep_len != strlen(new))
+    if (rep_len != strlen(new_str)) // old and new not the same length => can't replace in placeks
         return NULL;
-    while ((rep_p = strstr(str_in, old)) != NULL)
+    while ((rep_p = strstr(str_in, old_str)) != NULL)
     {
-        strncpy(rep_p, new, rep_len);
+        strncpy(rep_p, new_str, rep_len);
         rep_p += rep_len;
     }
     return str_in;
@@ -110,12 +110,14 @@ void *try_malloc(size_t size)
 
 char *str_strip_in_place(char *str)
 {
-    size_t len;
-
+    char *right_p;
+    // left trim
     while (*str && isspace(*str))
         str++;
-    
-    for (len = strlen(str); len > 1 && isspace(str[len - 1]); str[--len] = '\0')
+    // right trim
+    for (right_p = str + strlen(str);
+        right_p > str && isspace(*(right_p - 1));
+        *(--right_p) = '\0')
         ;
 
     return str;

@@ -11,7 +11,7 @@ int prompt(struct Person **head_p_p, FILE *fp)
     {
         fputs(">>> ", stdout);
         fgets(cmd_buf, INPUT_LINE_BUF_SIZE, stdin);
-        
+
         cmd_len = strnlen(cmd_buf, INPUT_LINE_BUF_SIZE);
         if (cmd_buf[cmd_len - 1] != '\n') // no '\n' at the end => the line is too long
         {
@@ -153,24 +153,49 @@ int make_select(char *cmd_tok, struct Person *head_p)
 {
     enum person_fields field_type;
     enum operators op;
+    char *op_start; // point at the start of the operator sub-string.
+    size_t op_len, found_count = 0;
+    float given_debt;
+    struct Date given_date;
     // pointer to the value to compare
     void *value_p;
+
     // array of pointers to comparison functions
     static int (*comparison_funcs_arr[PERSON_FIELDS_N])(struct Person * person_p, enum operators op, void *value) = {
         &check_first_name_condition, &check_last_name_condition,
         &check_id_condition, &check_phone_condition,
         &check_amount_condition, &check_date_condition};
-    size_t found_count = 0;
 
-    // we now at the first token ("select"). move to the next tok to point at the field name.
-    cmd_tok = strtok(NULL, " ");
+    // we now at the first token ("select"). get the rest.
+    cmd_tok = strtok(NULL, "");
     if (cmd_tok == NULL)
     {
         PRINT_INVALID_CMD("missing field");
         return RESULT_ERROR;
     }
 
-    // get the field
+    // get the operator
+    op_start = strpbrk(cmd_tok, OPERATORS_CHARS);
+    if (op_start == NULL)
+    {
+        PRINT_INVALID_CMD("missing operator");
+        return RESULT_ERROR;
+    }
+    op_len = strspn(op_start, OPERATORS_CHARS);
+    op = parse_operator(op_start, op_len);
+    if (op == OP_INVALID_OP)
+    {
+        PRINT_INVALID_CMD("invalid operator");
+        return RESULT_ERROR;
+    }
+
+    // get the field (-may override the operator)
+    cmd_tok = strtok(cmd_tok, " " OPERATORS_CHARS);
+    if (cmd_tok == NULL)
+    {
+        PRINT_INVALID_CMD("missing field name");
+        return RESULT_ERROR;
+    }
     field_type = parse_field(cmd_tok);
     if (field_type == P_INVALID_FIELD)
     {
@@ -178,30 +203,11 @@ int make_select(char *cmd_tok, struct Person *head_p)
         return RESULT_ERROR;
     }
 
-    // we now at the field token. move to the next tok to point at the operator.
-    cmd_tok = strtok(NULL, " ");
-    if (cmd_tok == NULL)
-    {
-        PRINT_INVALID_CMD("missing operator");
-        return RESULT_ERROR;
-    }
-
-    // get the operator
-    op = parse_operator(cmd_tok);
-    if (op == OP_INVALID_OP)
-    {
-        PRINT_INVALID_CMD("invalid operator");
-        return RESULT_ERROR;
-    }
-
-    // move to the value to compare to
-    cmd_tok = strtok(NULL, " ");
-    if (cmd_tok == NULL)
-    {
-        PRINT_INVALID_CMD("missing value to compare");
-        return RESULT_ERROR;
-    }
-
+    // move to the value (skip the operator)
+    cmd_tok = op_start + op_len;
+    // trim spaces from the value
+    cmd_tok = str_strip_in_place(cmd_tok);
+    
     // validate the value
     if (validate_cmd_value(cmd_tok, field_type) != VALID)
     {
@@ -209,28 +215,21 @@ int make_select(char *cmd_tok, struct Person *head_p)
         return RESULT_ERROR;
     }
 
-    // check there is no more args..
-    if (strtok(NULL, " ") != NULL)
-    {
-        PRINT_INVALID_CMD("too many args");
-        return RESULT_ERROR;
-    }
-
     // if the field is: first/last name/id/phone: use the cmd_tok as value to compare (string)
     // if the field is: debt/date: convert it to float/Date to use in the comparison function
-    if (field_type == P_CURRENT_DEBT)
+    switch (field_type)
     {
-        float given_debt = atof(cmd_tok);
+    case P_CURRENT_DEBT:
+        given_debt = atof(cmd_tok);
         value_p = &given_debt;
-    }
-    else if (field_type == P_DATE)
-    {
-        struct Date given_date = str_to_date(cmd_tok);
+        break;
+    case P_DATE:
+        given_date = str_to_date(cmd_tok);
         value_p = &given_date;
-    }
-    else
-    {
+        break;
+    default: // first/last name, id, phone (-string fields)
         value_p = cmd_tok;
+        break;
     }
 
     // print matching result
@@ -260,20 +259,27 @@ enum person_fields parse_field(char *field_tok)
     return P_INVALID_FIELD;
 }
 
-enum operators parse_operator(const char *op_str)
+enum operators parse_operator(const char *op_str, size_t op_len)
 {
-    if (strcmp(op_str, "<") == 0)
-        return OP_LT;
-    if (strcmp(op_str, "<=") == 0)
-        return OP_LE;
-    if (strcmp(op_str, "=") == 0)
-        return OP_EQ;
-    if (strcmp(op_str, "!=") == 0)
-        return OP_NE;
-    if (strcmp(op_str, ">=") == 0)
-        return OP_GE;
-    if (strcmp(op_str, ">") == 0)
-        return OP_GT;
+    switch (op_len)
+    {
+    case 1:
+        if (strncmp(op_str, "<", op_len) == 0)
+            return OP_LT;
+        if (strncmp(op_str, "=", op_len) == 0)
+            return OP_EQ;
+        if (strncmp(op_str, ">", op_len) == 0)
+            return OP_GT;
+        break;
+    case 2:
+        if (strncmp(op_str, "<=", op_len) == 0)
+            return OP_LE;
+        if (strncmp(op_str, "!=", op_len) == 0)
+            return OP_NE;
+        if (strncmp(op_str, ">=", op_len) == 0)
+            return OP_GE;
+        break;
+    }
     return OP_INVALID_OP;
 }
 
