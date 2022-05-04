@@ -3,8 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifndef DEBT_MANAGMENT_GENERAL_DEFS
-#define DEBT_MANAGMENT_GENERAL_DEFS
+#ifndef DEBT_MANAGEMENT_GENERAL_DEFS
+#define DEBT_MANAGEMENT_GENERAL_DEFS
 
 // return values: negative values for functions that return counts
 #define RESULT_SUCCESS -1

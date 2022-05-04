@@ -16,13 +16,16 @@ void update_person_debt_date_phone(struct Person *old_person_p, struct Person *n
 
 struct Person *insert_person_at_head(struct Person **head_p_p, struct Person *to_insert_p);
 void insert_after(struct Person *prev_p, struct Person *to_insert_p);
+// search for the Person in the list.
+// return a pointer  to it if found, else NULL.
 struct Person *get_person_by_id(struct Person *head_p, const char *id);
+// checks if the two Persons hase same first and last names. case insensetive.
 int is_same_person_names(struct Person *person_1_p, struct Person *person_2_p);
 // remove from the list, NO FREE!
 // return: if found: 1, if not found: 0
 int remove_person_from_the_list(struct Person **head_p_p, struct Person *person_p);
 
+// free one Person. including the first and last name and the Person itself.
 void free_person(struct Person *preson_p);
+// free a whole list of Persons
 void free_person_linked_list(struct Person *head_p);
-
-void print_persons_records(struct Person *head_p);
