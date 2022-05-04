@@ -101,7 +101,9 @@ void *try_malloc(size_t size)
 
     while ((ret = malloc(size)) == NULL)
     {
-        user_selection = get_user_selection_1_9("memory allocation failed. please select:\n1. try again.\n2. exit.", 2);
+        user_selection = get_user_selection_1_9(
+            "memory allocation failed. please select:\n1. try again.\n2. exit.",
+            2);
         if (user_selection == 2)
             break;
     }
@@ -116,8 +118,8 @@ char *str_strip_in_place(char *str)
         str++;
     // right trim
     for (right_p = str + strlen(str);
-        right_p > str && isspace(*(right_p - 1));
-        *(--right_p) = '\0')
+         right_p > str && isspace(*(right_p - 1));
+         *(--right_p) = '\0')
         ;
 
     return str;

@@ -11,8 +11,8 @@
     "commands and usage:\n"                                                                              \
     "select <FIELD NAME> <OPERATOR> <VALUE>\n"                                                           \
     "\tprints the matching records in the list.\n"                                                       \
-    "\tFIELD NAME: [first name, last name, id, phone, debt, date(dd/mm/yyyy)]\n"                         \
-    "\tOPERATOR: [<, <=, ==, !=, >=, >]\n"                                                               \
+    "\tFIELD NAME: [first name|last name|id|phone|debt|date(dd/mm/yyyy)]\n"                              \
+    "\tOPERATOR: [<|<=|=|!=|>=|>]\n"                                                                     \
     "\tVALUE: a valid value for the given field\n\n"                                                     \
     "set first name=<value>, last name=<value>, id=<value>, phone=<value>, debt=<value>, date=<value>\n" \
     "\tadd a record to the data structure.\n"                                                            \
@@ -22,7 +22,6 @@
     "\tprints a table with all the records.\n\n"                                                         \
     "quit\n\n"
 
-#define PRINT_QUIERIES_HELP fputs(QUIERIES_HELP_TXT, stdout);
 
 // operate the overall prompt feature
 int prompt(struct Person **head_p_p, FILE *fp);

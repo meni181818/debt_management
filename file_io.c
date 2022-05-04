@@ -70,7 +70,9 @@ int load_from_file(FILE *fp, struct Person **head_p_p)
                     return EXIT_SIGNAL_ERROR;
                 case RESULT_SUCCESS:
                     // if the data of the new person was inserted we get back non-NULL pointer
-                    valid_lines_loaded += (insert_or_update_person(head_p_p, new_preson_p, lines_count) != NULL);
+                    valid_lines_loaded += (
+                        insert_or_update_person(head_p_p, new_preson_p, lines_count)
+                        != NULL);
                 }
             }
         }

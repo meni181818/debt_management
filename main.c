@@ -16,19 +16,19 @@ int main(int argc, char const *argv[])
     if (fp_debts == NULL) // failed to fopen() and the user chose to exit
         return EXIT_FAILURE;
 
-        load_file_res = load_from_file(fp_debts, &persons_head_p);
-        if (load_file_res == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
-        {
-            ret_val = EXIT_FAILURE;
-            goto out_cleanup;
-        }
+    load_file_res = load_from_file(fp_debts, &persons_head_p);
+    if (load_file_res == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
+    {
+        ret_val = EXIT_FAILURE;
+        goto out_cleanup;
+    }
 
-        merge_sort(&persons_head_p);
-        print_persons_records(persons_head_p);
+    merge_sort(&persons_head_p);
+    print_persons_records(persons_head_p);
 
-        if (prompt(&persons_head_p, fp_debts) == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
-            ret_val = EXIT_FAILURE;
-        
+    if (prompt(&persons_head_p, fp_debts) == EXIT_SIGNAL_ERROR) // malloc failed and the user want to exit
+        ret_val = EXIT_FAILURE;
+
 out_cleanup:
     free_person_linked_list(persons_head_p);
     fclose(fp_debts);

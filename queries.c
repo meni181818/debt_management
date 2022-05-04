@@ -62,7 +62,7 @@ int route_cmd(char *cmd_str, size_t cmd_len, struct Person **head_p_p, FILE *fp)
 
     if (strcmp(tok, "help") == 0 && strtok(NULL, " ") == NULL) // && no another word(s)
     {
-        PRINT_QUIERIES_HELP;
+        fputs(QUIERIES_HELP_TXT, stdout);
         return RESULT_SUCCESS;
     }
 
@@ -78,19 +78,20 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
     enum person_fields current_field;
     char *value_str_p;
     size_t overall_len = FILE_COLUMNS - 1 + 1; // (5 * ',' + '\0')
+    // validation will mutate it so create a copy for writing to the file
     char final_line_for_validation[INPUT_LINE_BUF_SIZE], final_line_for_file[INPUT_LINE_BUF_SIZE];
     struct Person *new_person;
 
     // we now at the first token ("set"). loop 6 times for all person fields.
     for (size_t i = 0; i < PERSON_FIELDS_N; i++)
     {
-        cmd_tok = strtok(NULL, " ,");
+        cmd_tok = strtok(NULL, ",");
         if (cmd_tok == NULL) // missing token
         {
             PRINT_INVALID_CMD("missing field");
             return RESULT_ERROR;
         }
-
+        
         value_str_p = strchr(cmd_tok, '=');
         // if no value placing (<field_name>=<value>)
         if (value_str_p == NULL)
@@ -100,8 +101,9 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
         }
         // temporarily replace '=' with '\0' for parsing the field name
         *value_str_p = '\0';
+        cmd_tok = str_strip_in_place(cmd_tok); // strip spaces from the field name
         current_field = parse_field(cmd_tok);
-        *value_str_p = '='; // bring it back
+        *value_str_p = '='; // bring it back (-for strtok)
 
         // check if we got duplicate field names (we zero that array above)
         if (fields_p_arr[current_field] != 0)
@@ -110,17 +112,18 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
             return RESULT_ERROR;
         }
         // point it to it's next char (=> the actual value string) and save it on the fields array
-        fields_p_arr[current_field] = ++value_str_p;
-        overall_len += strlen(value_str_p);
+        fields_p_arr[current_field] = str_strip_in_place(value_str_p + 1);
+        overall_len += strlen(fields_p_arr[current_field]);
     }
-
-    if (overall_len > INPUT_LINE_BUF_SIZE - 1)
+    
+    // vavidate no more arguments
+    if (strtok(NULL, " ,") != NULL)
     {
-        PRINT_INVALID_CMD("the line is too long");
+        PRINT_INVALID_CMD("too much arguments");
         return RESULT_ERROR;
     }
 
-    // make line like in the file (for person object creation)
+    // create a line like in the file (for person object creation)
     snprintf(final_line_for_validation, INPUT_LINE_BUF_SIZE, "%s,%s,%s,%s,%s,%s",
              fields_p_arr[0], fields_p_arr[1], fields_p_arr[2],
              fields_p_arr[3], fields_p_arr[4], fields_p_arr[5]);
@@ -135,9 +138,6 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
         return RESULT_ERROR;
     }
 
-    // invalid field\s
-    if (new_person == NULL)
-        return RESULT_ERROR;
     new_person = insert_or_update_person(head_p_p, new_person, 0);
     // conflicting names and id
     if (new_person == NULL)
@@ -308,12 +308,12 @@ size_t print_persons_filtered(
 
 int check_first_name_condition(struct Person *person_p, enum operators op, void *value)
 {
-    return check_condition(op, (float)strcmp(person_p->first_name, (char *)value));
+    return check_condition(op, (float)strcasecmp(person_p->first_name, (char *)value));
 }
 
 int check_last_name_condition(struct Person *person_p, enum operators op, void *value)
 {
-    return check_condition(op, (float)strcmp(person_p->last_name, (char *)value));
+    return check_condition(op, (float)strcasecmp(person_p->last_name, (char *)value));
 }
 
 int check_id_condition(struct Person *person_p, enum operators op, void *value)
@@ -352,5 +352,7 @@ int check_condition(enum operators op, float cmp_res)
         return cmp_res >= 0;
     case OP_GT:
         return cmp_res > 0;
+    default:
+        return 1; // condition is false
     }
 }

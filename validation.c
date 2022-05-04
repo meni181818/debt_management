@@ -87,7 +87,7 @@ enum validation_result _phone_validation(const char *phone)
 enum validation_result _amount_validation(const char *amount)
 {
     // no amount
-    if (*amount == '\0' || *amount == '-' && amount[1] == '\0')
+    if (*amount == '\0' || (*amount == '-' && amount[1] == '\0'))
         return EMPTY_STRING;
 
     // not all digits
@@ -114,7 +114,7 @@ enum validation_result _date_validation(const char *date)
     size_t len, i;
     char date_cpy[MAX_DATE_LEN + 1];
     char *tok;
-    int temp_n;
+    
     // no date
     if (*date == '\0')
         return EMPTY_STRING;
@@ -205,6 +205,8 @@ enum validation_result validate_line_cols(const char *line, size_t line_number)
     case TOO_MUCH_COLUMNS:
         fprintf(stderr, "error. too much columns on the file. line no. %lu\n", line_number);
         break;
+    default:
+        break;
     }
 
     return validation_res;
@@ -233,6 +235,8 @@ enum validation_result validate_name(const char *name, const char *first_or_last
     case CONTAINS_INVALID_CHARS:
         fprintf(stderr, "error. the %s name \"%s\" contains invalid characters. line no. %lu\n",
                 first_or_last, name, line_number);
+        break;
+    default:
         break;
     }
 
@@ -278,19 +282,26 @@ enum validation_result validate_phone(const char *phone, size_t line_number)
         fprintf(stderr, "error. empty phone at line no. %lu\n", line_number);
         break;
     case TOO_SHORT:
-        fprintf(stderr, "error. the phone \"%s\" is too short (should be %d digits). line no. %lu\n",
+        fprintf(stderr,
+                "error. the phone \"%s\" is too short (should be %d digits). line no. %lu\n",
                 phone, PHONE_VALID_LEN, line_number);
         break;
     case TOO_LONG:
-        fprintf(stderr, "error. the phone \"%s\" is too long (should be %d digits). line no. %lu\n",
+        fprintf(stderr,
+                "error. the phone \"%s\" is too long (should be %d digits). line no. %lu\n",
                 phone, PHONE_VALID_LEN, line_number);
         break;
     case INVALID_FORMAT:
-        fprintf(stderr, "error. the phone \"%s\" is in invalid format. (should start with %s). line no. %lu\n",
+        fprintf(stderr,
+                "error. the phone \"%s\" is in invalid format. (should start with %s). line no. %lu\n",
                 phone, PHONE_PREFIX, line_number);
         break;
     case CONTAINS_INVALID_CHARS:
-        fprintf(stderr, "error. the phone \"%s\" contains invalid chars. (should be digits only). line no. %lu\n", phone, line_number);
+        fprintf(stderr,
+                "error. the phone \"%s\" contains invalid chars. (should be digits only). line no. %lu\n",
+                phone, line_number);
+        break;
+    default:
         break;
     }
 
@@ -310,8 +321,11 @@ enum validation_result validate_amount(const char *amount, size_t line_number)
                 amount, line_number);
         break;
     case CONTAINS_INVALID_CHARS:
-        fprintf(stderr, "error. the amount \"%s\" contains invalid chars. (should be digits only). line no. %lu\n",
+        fprintf(stderr,
+                "error. the amount \"%s\" contains invalid chars. (should be digits only). line no. %lu\n",
                 amount, line_number);
+        break;
+    default:
         break;
     }
 
@@ -333,10 +347,16 @@ enum validation_result validate_date(const char *date, size_t line_number)
         fprintf(stderr, "error. too long date at line no. %lu\n", line_number);
         break;
     case CONTAINS_INVALID_CHARS:
-        fprintf(stderr, "error. the date \"%s\" contains invalid characters. line no. %lu\n", date, line_number);
+        fprintf(stderr,
+                "error. the date \"%s\" contains invalid characters. line no. %lu\n",
+                date, line_number);
         break;
     case INVALID_FORMAT:
-        fprintf(stderr, "error. the date \"%s\" is in invalid format. line no. %lu\n", date, line_number);
+        fprintf(stderr,
+                "error. the date \"%s\" is in invalid format. line no. %lu\n",
+                date, line_number);
+        break;
+    default:
         break;
     }
     return validation_res;
@@ -367,6 +387,8 @@ enum validation_result validate_cmd_value(const char *value, enum person_fields 
         return _amount_validation(value);
     case P_DATE:
         return _date_validation(value);
+    default:
+        return INVALID_FORMAT; // got an invalid field
     }
 }
 
