@@ -161,7 +161,7 @@ int make_select(char *cmd_tok, struct Person *head_p)
     void *value_p;
 
     // array of pointers to comparison functions
-    static int (*comparison_funcs_arr[PERSON_FIELDS_N])(struct Person * person_p, enum operators op, void *value) = {
+    static comparison_func_p_t comparison_funcs_arr[PERSON_FIELDS_N] = {
         &check_first_name_condition, &check_last_name_condition,
         &check_id_condition, &check_phone_condition,
         &check_amount_condition, &check_date_condition};
@@ -285,7 +285,7 @@ enum operators parse_operator(const char *op_str, size_t op_len)
 
 size_t print_persons_filtered(
     struct Person *head_p, enum operators op, void *value,
-    int (*comparison_func_p)(struct Person *person_p, enum operators op, void *value))
+    comparison_func_p_t comparison_func_p)
 {
     size_t count_prints = 0;
     while (head_p != NULL)

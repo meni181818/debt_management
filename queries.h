@@ -22,6 +22,8 @@
     "\tprints a table with all the records.\n\n"                                                         \
     "quit\n\n"
 
+// comparison function-pointer type
+typedef int (*comparison_func_p_t) (struct Person *, enum operators, void *);
 
 // operate the overall prompt feature
 int prompt(struct Person **head_p_p, FILE *fp);
