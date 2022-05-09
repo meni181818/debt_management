@@ -82,7 +82,7 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
     char final_line_for_validation[INPUT_LINE_BUF_SIZE], final_line_for_file[INPUT_LINE_BUF_SIZE];
     struct Person *new_person;
 
-    // we now at the first token ("set"). loop 6 times for all person fields.
+    // we now at the first token ("set"). loop 6 times for all Person fields.
     for (size_t i = 0; i < PERSON_FIELDS_N; i++)
     {
         cmd_tok = strtok(NULL, ",");
@@ -103,7 +103,7 @@ int make_set(char *cmd_tok, struct Person **head_p_p, FILE *fp)
         *value_str_p = '\0';
         cmd_tok = str_strip_in_place(cmd_tok); // strip spaces from the field name
         current_field = parse_field(cmd_tok);
-        *value_str_p = '='; // bring it back (-for strtok)
+        *value_str_p = '='; // bring it back (-so strtok on the next iteration won't stop on this '\0')
 
         // check if we got duplicate field names (we zero that array above)
         if (fields_p_arr[current_field] != 0)
