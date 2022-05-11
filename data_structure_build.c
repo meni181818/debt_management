@@ -8,6 +8,8 @@ int create_person_from_line(
     *new_person_p_p = (struct Person *)try_malloc(sizeof(struct Person));
     if (*new_person_p_p == NULL) // malloc failed and the user want to exit
         return EXIT_SIGNAL_ERROR;
+    // init to NULL so if goto out_cleanup -> insure you can free() it (not a garbage value)
+    (*new_person_p_p)->first_name = (*new_person_p_p)->last_name = NULL;
 
     char *tok = strtok(line, FILE_DELIM_STR);
 

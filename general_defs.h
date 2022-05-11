@@ -15,7 +15,7 @@
 #define DEFAULT_FILE_NAME "debts.csv"
 #define PERSON_FIELDS_N 6
 #define INPUT_LINE_BUF_SIZE 256
-#define PERSONS_TABLE_HEADER "\nfirst name\tlast name \tid       \tphone     \tcurrent debt\tearliest date\n\n"
+#define PERSONS_TABLE_HEADER "\nfirst name          \tlast name      \tid       \tphone     \tcurrent debt\tearliest date\n\n"
 #define OPERATORS_CHARS "<=!>"
 
 // functions-like macros
@@ -27,7 +27,7 @@
     } while (0)
 
 #define PRINT_PERSON(person_p)                                               \
-    printf("%-10s\t%-10s\t%s\t%s\t%12g\t   %02d/%02d/%d\n",                  \
+    printf("%-20s\t%-15s\t%s\t%s\t%12g\t   %02d/%02d/%d\n",                  \
            person_p->first_name, person_p->last_name, person_p->id,          \
            person_p->phone, person_p->current_debt,                          \
            person_p->erliest_date.day, person_p->erliest_date.month, \
